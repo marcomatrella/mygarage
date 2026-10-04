@@ -3,7 +3,8 @@ name: Build and Push to GHCR
 on:
   push:
     branches:
-      - release/marcomatrella-local-push # Cambialo in master se il tuo branch principale si chiama così
+      - release/marcomatrella-local-push
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -20,20 +21,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }} # CORRETTO (rimosso l'env di troppo)
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} # CORRETTO
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
+            type=raw,value=local-release
+            type=sha,format=short
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -42,3 +48,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
