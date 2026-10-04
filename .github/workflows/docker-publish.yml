@@ -3,11 +3,10 @@ name: Build and Push to GHCR
 on:
   push:
     branches:
-      - main # O master, a seconda di come si chiama il tuo branch principale
+      - main # Cambialo in master se il tuo branch principale si chiama così
 
 env:
   REGISTRY: ghcr.io
-  # Crea automaticamente il percorso corretto (ghcr.io/tuo-utente/mygarage)
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -15,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # Permesso fondamentale per scrivere nell'Artifact Manager
+      packages: write
 
     steps:
       - name: Checkout repository
@@ -24,16 +23,15 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.env.REGISTRY }}
+          registry: ${{ env.REGISTRY }} # CORRETTO (rimosso l'env di troppo)
           username: ${{ github.actor }}
-          # Utilizza un token temporaneo autogenerato da GitHub
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.env.REGISTRY }}/${{ env.env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} # CORRETTO
           tags: |
             type=raw,value=latest
 
