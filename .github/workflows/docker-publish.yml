@@ -3,7 +3,7 @@ name: Build and Push to GHCR
 on:
   push:
     branches:
-      - main # Cambialo in master se il tuo branch principale si chiama così
+      - release/marcomatrella-local-push # Cambialo in master se il tuo branch principale si chiama così
 
 env:
   REGISTRY: ghcr.io
